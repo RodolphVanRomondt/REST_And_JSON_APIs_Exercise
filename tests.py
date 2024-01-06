@@ -4,14 +4,15 @@ from app import app
 from models import db, Cupcake
 
 # Use test database and don't clutter tests with SQL
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///cupcakes_test'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///cupcakes'
 app.config['SQLALCHEMY_ECHO'] = False
 
 # Make Flask errors be real errors, rather than HTML pages with error info
 app.config['TESTING'] = True
 
-db.drop_all()
-db.create_all()
+with app.app_context():
+    db.drop_all()
+    db.create_all()
 
 
 CUPCAKE_DATA = {
@@ -35,18 +36,22 @@ class CupcakeViewsTestCase(TestCase):
     def setUp(self):
         """Make demo data."""
 
-        Cupcake.query.delete()
+        with app.app_context():
+            Cupcake.query.delete()
 
         cupcake = Cupcake(**CUPCAKE_DATA)
-        db.session.add(cupcake)
-        db.session.commit()
+
+        with app.app_context():
+            db.session.add(cupcake)
+            db.session.commit()
 
         self.cupcake = cupcake
 
     def tearDown(self):
         """Clean up fouled transactions."""
 
-        db.session.rollback()
+        with app.app_context():
+            db.session.rollback()
 
     def test_list_cupcakes(self):
         with app.test_client() as client:

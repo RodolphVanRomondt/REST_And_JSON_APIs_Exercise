@@ -11,6 +11,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///cupcakes'
 
 connect_db(app)
 
+@app.route("/")
+def homepage():
+    """ The homepage. """
+
+    return render_template("index.html")
+
 @app.route("/api/cupcakes")
 def get_cupcakes():
     """ GET all cupcakes in cupcakes.db as JSON. """
